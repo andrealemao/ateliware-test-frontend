@@ -86,7 +86,7 @@ export default {
             this.saveTutorial(repositories)
           })
           .catch((error) => {
-            console.log(error, "Ocorreu um erro, tente novamente!")
+            console.log("ERRO")
           })
       }
     },
@@ -119,11 +119,7 @@ export default {
       this.submitted = false
       this.ok = false
       this.repository = {}
-    },
-  },
-  
-  mounted() {
-    console.log(!this.valid)
+    }
   }
 }
 </script>
