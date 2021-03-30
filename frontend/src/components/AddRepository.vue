@@ -1,5 +1,27 @@
 <template>
   <div class="submit-form mt-3 mx-auto">
+    <v-alert
+      v-if="errorAlert"
+      border="right"
+      colored-border
+      type="error"
+      elevation="2"
+      transition="scale-transition"
+      dismissible
+    >
+      {{this.alertMessage}}
+    </v-alert>
+    <v-alert
+      v-if="warnAlert"
+      border="right"
+      colored-border
+      type="warning"
+      elevation="2"
+      transition="scale-transition"
+      dismissible
+    >
+      {{this.alertMessage}}
+    </v-alert>
     <p class="headline">Buscar e adicionar repositório</p>
 
     <div v-if="!submitted">
@@ -58,12 +80,14 @@ export default {
         html_url: "",
         description: "",
       },
-      ok: false,
       submitted: false,
       rules: [
         v => !!v || "Campo linguagem obrigatório",
       ],
-      valid: true
+      valid: true,
+      errorAlert: false,
+      warnAlert: false,
+      alertMessage: ""
     }
   },
   methods: {
@@ -82,12 +106,26 @@ export default {
           .get(`https://api.github.com/search/repositories?q=language:${this.repository.language}&sort=stars&page=1`)
           .then((response) => {
             let repositories = response.data.items[0]
-            console.log(repositories)
+            this.errorAlert = false
             this.saveTutorial(repositories)
           })
           .catch((error) => {
-            console.log("ERRO", error)
+            if (error.response.status == 422 && error.response.data.errors[0].code == "invalid") {
+              this.errorAlert = true
+              this.alertMessage = "Linguagem digitada inválida ou não existe!"
+              setTimeout(()=>{
+                this.errorAlert = false
+              },3000)
+            } else {
+              console.log("Ocorreu um erro, tente novamente!")
+            }
           })
+      } else {
+        this.warnAlert = true
+        this.alertMessage = "Campo linguagem é obrigatório!"
+        setTimeout(()=>{
+          this.warnAlert = false
+        },3000)
       }
     },
     saveTutorial(repositories) {
@@ -114,18 +152,16 @@ export default {
           console.log(e)
         })
     },
-
     newTutorial() {
       this.submitted = false
-      this.ok = false
       this.repository = {}
-    }
+    },
   }
 }
 </script>
 
 <style>
 .submit-form {
-  max-width: 400px
+  max-width: 450px
 }
 </style>
