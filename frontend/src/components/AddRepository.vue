@@ -86,7 +86,7 @@ export default {
             this.saveTutorial(repositories)
           })
           .catch((error) => {
-            console.log("ERRO")
+            console.log("ERRO", error)
           })
       }
     },
